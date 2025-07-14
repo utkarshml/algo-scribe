@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+
+
+
+*{
+  ::-webkit-scrollbar{
+    width: 5px;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb{
+    background: #888;
+    border-radius: 10px;
+  }
+}
+
+.chatInput{
+  resize: none;
+}
+.chatInput:focus-visible{
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+button {
+  cursor: pointer;
+}
