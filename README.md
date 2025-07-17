@@ -1,4 +1,4 @@
-# ![Algo-Scribe Logo](https://github.com/utkarshml/algo-scribe/public/icon/128.png)  
+# ![Algo-Scribe Logo](https://github.com/utkarshml/algo-scribe/blob/main/public/icon/128.png?raw=true) 
 # **Algo-Scribe** 🚀  
 **Capture. Learn. Master Your Coding Journey.**
 
