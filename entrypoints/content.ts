@@ -6,13 +6,12 @@ export default defineContentScript({
   main(ctx) {
 
 
-
-
-
-    const script = document.createElement('script');
-    script.src = chrome.runtime.getURL('injector.js');
-    script.onload = () => script.remove();
-    document.documentElement.appendChild(script);
+    window.addEventListener('message', (event) => {
+      if (event.data?.type === 'SUPABASE_LOGIN') {
+        browser.runtime.sendMessage({ type: "SUPABASE_LOGIN", token: event.data.token });
+        chrome.storage.local.set({ supabaseToken: event.data.token });
+      }
+    });
 
     function getLeetCodeInfo(): leetcodeData {
       const data: leetcodeData = {
@@ -21,19 +20,19 @@ export default defineContentScript({
         language: "c++"
       }
       const questionTitleElement = document.querySelector('.text-title-large');
-      const medium = document.getElementsByClassName("text-difficulty-medium") 
-      const easy =  document.getElementsByClassName("text-difficulty-easy") 
-      const hard =  document.getElementsByClassName("text-difficulty-hard");
-      if(easy.length > 0){
+      const medium = document.getElementsByClassName("text-difficulty-medium")
+      const easy = document.getElementsByClassName("text-difficulty-easy")
+      const hard = document.getElementsByClassName("text-difficulty-hard");
+      if (easy.length > 0) {
         data.difficulty = "Easy";
-      }else if(hard.length > 0){
+      } else if (hard.length > 0) {
         data.difficulty = "Hard";
-      }else if(medium.length > 0){
+      } else if (medium.length > 0) {
         data.difficulty = "Medium";
-      }else{
+      } else {
         data.difficulty = "No Difficulty Found";
       }
-      
+
       const questionTitle = questionTitleElement && (questionTitleElement as HTMLElement).innerText || "No question title found";
       const questionDescription = (document.querySelectorAll('.elfjS')[0] as HTMLElement).innerText || "No question description found";
       data.question = questionTitle
@@ -89,10 +88,7 @@ export default defineContentScript({
       });
     }
 
-    if (
-      window.location.host === 'leetcode.com' &&
-      window.location.pathname.startsWith('/problems')
-    ) {
+    const leetcodeDataSetter = () => {
       const script = document.createElement('script');
       script.src = chrome.runtime.getURL('injector.js');
       script.onload = () => script.remove();
@@ -109,17 +105,37 @@ export default defineContentScript({
         }
       });
     }
-    else if (
-      window.location.host === 'www.geeksforgeeks.org' &&
-      window.location.pathname.startsWith('/problems')
-    ) {
+    const gfgcodeDataSetter = () => {
       getGFGInfo().then((data) => {
         browser.runtime.sendMessage({ type: "SCRAPED_DATA", data }, (res) => {
           console.log("Message Sucessfully send to Background")
         });
       })
-
-
     }
+
+
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        if (
+          window.location.host === 'leetcode.com' &&
+          window.location.pathname.startsWith('/problems')
+        ) {
+          leetcodeDataSetter();
+        } else if (
+          window.location.host === 'www.geeksforgeeks.org' &&
+          window.location.pathname.startsWith('/problems')
+        ) {
+          gfgcodeDataSetter();
+        } else {
+          observer.disconnect();
+        }
+      }, 300);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
   },
 });

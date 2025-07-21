@@ -8,11 +8,10 @@ type Props = {
   inputValue: string;
   setInputValue: (value: string) => void;
   handleSendMessage: () => void;
-  handleKeyPress: (e: React.KeyboardEvent) => void;
-  disable : boolean
+  handleKeyPress: (e: React.KeyboardEvent) => void
 };
 
-export const ChatInput = React.memo(({ inputValue, setInputValue, disable, handleSendMessage, handleKeyPress }: Props) => {
+export const ChatInput = React.memo(({ inputValue, setInputValue, handleSendMessage, handleKeyPress }: Props) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -33,7 +32,6 @@ export const ChatInput = React.memo(({ inputValue, setInputValue, disable, handl
           placeholder="Type your message..."
           className="flex-1 chatInput in  focus:outline-none focus:ring-0 border-none text-white  resize-none font-mono text-sm"
           rows={1}
-          disabled={disable}
         />
         <Button
           onClick={handleSendMessage}

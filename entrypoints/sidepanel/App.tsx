@@ -92,7 +92,7 @@ function App() {
   useEffect(() => {
     async function fetchSession() {
       try {
-        const { session } = await browser.storage.local.get('session');
+        const { supabaseToken:  session  } = await browser.storage.local.get('supabaseToken');
         if (session) {
           const { error } = await supabase.auth.setSession(session);
           if (!error) {
@@ -128,20 +128,19 @@ function App() {
   requestBody: any
 ): Promise<any> => {
   try {
-    const response = await fetch("https://n8nutkarsh-g4dha8cpgfbdfdae.canadacentral-01.azurewebsites.net/webhook/gen", {
+    const response = await fetch("http://127.0.0.1:8000/solve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
     });
 
     const resp = await response.json();
-    const output = resp[0]?.output;
-
-    if (requestBody.isChat) {
+    const output = resp?.response;
+    if (output.isChat) {
       return {
         id: crypto.randomUUID(),
         sender: "bot",
-        botMessage: output ?? "No response generated",
+        botMessage: output.return ?? "No response generated",
         timestamp: new Date(),
         isChat : true,
       };
@@ -208,13 +207,7 @@ const handleSendMessage = useCallback(async () => {
     },
   ]);
 
-  const requestBody = isChat
-    ? {
-        id: sessionId,
-        message: inputValue,
-        isChat: isChat,
-      }
-    : {
+  const requestBody = {
         id: sessionId,
         question_name: questionRequest?.question,
         description: questionRequest?.description,
@@ -225,10 +218,8 @@ const handleSendMessage = useCallback(async () => {
         isChat: isChat,
       };
   const botResponse = await sendMessageRequest(requestBody);
-  const modifyedBotResponse = {
-    ...botResponse,isChat : isChat
-  }
-  setMessages((prev) => [...prev, modifyedBotResponse]);
+
+  setMessages((prev) => [...prev, botResponse]);
   setIsTyping(false);
 }, [inputValue, sessionId, questionRequest]);
 
@@ -301,7 +292,6 @@ const handleSendMessage = useCallback(async () => {
         </div>
         <ChatInput
           inputValue={inputValue}
-          disable={isQuestionAvailable}
           setInputValue={setInputValue}
           handleSendMessage={handleSendMessage}
           handleKeyPress={handleKeyPress}

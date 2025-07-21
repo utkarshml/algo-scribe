@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import "./style.css";
-
 import { Button } from "@/components/ui/button";
 import { FileText, LayoutDashboard, LogOutIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -21,6 +20,8 @@ function IndexPopup() {
       setTabId(tabs[0]?.id);
     });
   }, []);
+  
+
 
   // Request question data from background script
   useEffect(() => {
@@ -43,15 +44,16 @@ function IndexPopup() {
     requestData();
   }, []);
 
+  
   // Restore session from browser local storage
   useEffect(() => {
     async function fetchSession() {
       try {
-        const { session } = await browser.storage.local.get('session');
-        if (session) {
-          const { error } = await supabase.auth.setSession(session);
+        const { supabaseToken } = await browser.storage.local.get('supabaseToken');
+        if (supabaseToken) {
+          const { error } = await supabase.auth.setSession(supabaseToken);
           if (!error) {
-            setSession(session);
+            setSession(supabaseToken);
           } else {
             console.error("Supabase session error:", error);
           }
@@ -63,8 +65,8 @@ function IndexPopup() {
       }
     }
     fetchSession();
+ 
   }, []);
-
   // Button handlers
   const handleNote = useCallback(() => {
     if (!tabId) return;
@@ -72,14 +74,9 @@ function IndexPopup() {
     window.close();
   }, [tabId]);
 
-  const handleDashboard = useCallback(() => {
-    const url = browser.runtime.getURL('/options.html');
-    window.open(url);
-  }, []);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    await browser.storage.local.remove('session');
+  browser.tabs.create({ url: import.meta.env.VITE_ALGO_BASE_URL + '/logout' });
     window.close();
   }, []);
 
@@ -139,14 +136,16 @@ function IndexPopup() {
               Generate Note
             </Button>
 
+         <a target="_blank" href="http://localhost:8080">
             <Button
-              onClick={handleDashboard}
               variant="outline"
               className="justify-start gap-3 text-white cursor-pointer h-10 border-purple-200 hover:bg-purple-50 hover:border-purple-300 dark:border-purple-700 dark:hover:bg-purple-900/30"
             >
+
               <LayoutDashboard className="h-4 w-4 text-purple-600" />
               Dashboard
             </Button>
+            </a>
           </div>
         </div>
       </Card>
