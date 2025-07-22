@@ -128,7 +128,7 @@ function App() {
   requestBody: any
 ): Promise<any> => {
   try {
-    const response = await fetch("http://127.0.0.1:8000/solve", {
+    const response = await fetch("https://algo-scribe-ai-server.vercel.app/solve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody),
