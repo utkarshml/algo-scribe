@@ -136,7 +136,7 @@ function IndexPopup() {
               Generate Note
             </Button>
 
-         <a target="_blank" href="http://localhost:8080">
+         <a target="_blank" href="https://algo-gray.vercel.app/auth">
             <Button
               variant="outline"
               className="justify-start gap-3 text-white cursor-pointer h-10 border-purple-200 hover:bg-purple-50 hover:border-purple-300 dark:border-purple-700 dark:hover:bg-purple-900/30"

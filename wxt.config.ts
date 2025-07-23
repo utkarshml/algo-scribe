@@ -9,7 +9,7 @@ export default defineConfig({
       name: "algo-scribe",
       description: "DSA solutions with AI-powered notes ",
       author: "Utkarsh Jaiswal",
-      version: "1.0.0",
+      version: "1.0.2",
       permissions: ["scripting", "sidePanel", "activeTab","tabs", "storage" ],
       "oauth2": {
         client_id: "741307501287-7mpuuhoicr348j1vqs9fo9q016ptdgil.apps.googleusercontent.com",

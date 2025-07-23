@@ -12,7 +12,7 @@ function Auth() {
     <Card className='w-[300px] h-[150px] bg-[#1a1a1a] text-white'>
      <CardContent className='flex flex-col gap-6 items-center'>
       <Button className='cursor-pointer border-purple-950' variant={"outline"}>
-        <a target='_blank' href='http://localhost:8080/auth'>
+        <a target='_blank' href='https://algo-gray.vercel.app/auth'>
 Login
         </a>
         </Button>
