@@ -58,6 +58,22 @@ Messy docs waste time. Revisiting solved problems becomes a headache.
 - 🎯 Focus on Revision, Not Organization  
 
 ---
+### Demo Screenshots
+
+![Algo-Scribe Demo](https://github.com/utkarshml/algo-scribe/blob/main/demo/1.png?raw=true)
+![Algo-Scribe Demo](https://github.com/utkarshml/algo-scribe/blob/main/demo/2.png?raw=true)
+![Algo-Scribe Demo](https://github.com/utkarshml/algo-scribe/blob/main/demo/3.png?raw=true)
+![Algo-Scribe Demo](https://github.com/utkarshml/algo-scribe/blob/main/demo/4.png?raw=true)
+![Algo-Scribe Demo](https://github.com/utkarshml/algo-scribe/blob/main/demo/5.png?raw=true)
+
+---
+
+## 📸 Demo Video
+
+[![Algo-Scribe Demo Video](https://github.com/utkarshml/algo-scribe/blob/main/demo/1.png?raw=true)](https://github.com/utkarshml/algo-scribe/blob/main/demo/extension_demo.mp4?raw=true)
+
+---
+
 
 ## 🚀 Setup  
 
