@@ -68,12 +68,6 @@ Messy docs waste time. Revisiting solved problems becomes a headache.
 
 ---
 
-## 📸 Demo Video
-
-[![Algo-Scribe Demo Video](https://github.com/utkarshml/algo-scribe/blob/main/demo/1.png?raw=true)](https://youtu.be/i6JOeYd-PcM)
-
----
-
 
 ## 🚀 Setup  
 
