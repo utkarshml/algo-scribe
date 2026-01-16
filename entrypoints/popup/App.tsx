@@ -7,7 +7,8 @@ import { Separator } from "@/components/ui/separator";
 import Auth from "@/components/Auth";
 import { supabase } from "../background";
 import { Session } from "@supabase/supabase-js";
-
+import ThemeButton from "@/components/ThemeButton";
+import appLogo from "../../assets/algo_logo.png"
 function IndexPopup() {
   const [pageInfo, setPageInfo] = useState({ question: '', description: '', language: '', code: '' });
   const [tabId, setTabId] = useState<number | null | undefined>(null);
@@ -20,7 +21,7 @@ function IndexPopup() {
       setTabId(tabs[0]?.id);
     });
   }, []);
-  
+
 
 
   // Request question data from background script
@@ -44,7 +45,7 @@ function IndexPopup() {
     requestData();
   }, []);
 
-  
+
   // Restore session from browser local storage
   useEffect(() => {
     async function fetchSession() {
@@ -65,7 +66,7 @@ function IndexPopup() {
       }
     }
     fetchSession();
- 
+
   }, []);
   // Button handlers
   const handleNote = useCallback(() => {
@@ -76,14 +77,14 @@ function IndexPopup() {
 
 
   const signOut = useCallback(async () => {
-  browser.tabs.create({ url: import.meta.env.VITE_ALGO_BASE_URL + '/logout' });
+    browser.tabs.create({ url: import.meta.env.VITE_ALGO_BASE_URL + '/logout' });
     window.close();
   }, []);
 
   // Render loader while session is being restored
   if (loading) {
     return (
-      <div className="p-2 w-80 bg-[rgb(23,22,22)] shadow-lg rounded-lg">
+      <div className="p-2 w-80 bg-card shadow-lg rounded-lg">
         <Card className="border-0 shadow-none ">
           <div className="p-4">
             <Loader />
@@ -100,26 +101,32 @@ function IndexPopup() {
 
   // Render main popup content
   return (
-    <div className=" w-80  bg-[rgb(23,22,22)] shadow-lg rounded-lg">
+    <div className=" w-80  bg-primary shadow-lg rounded-lg">
       <Card className="border-0 shadow-none ">
         <div className="p-4 space-y-4">
-          
+
           {/* Header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-lg text-white font-bold">{session.user.user_metadata?.full_name || "User"}</h2>
-            <Button onClick={signOut} className=" cursor-pointer bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-              <LogOutIcon />
-            </Button>
+            <div className="flex items-center gap-2">
+              <img src={appLogo} alt="Algo-Scribe Logo" className="w-8 h-8" />
+              <h2 className="text-lg  font-bold ">{session.user.user_metadata?.full_name || "User"}</h2>
+            </div>
+            <div className="flex gap-4">
+              <ThemeButton />
+              <Button onClick={signOut} className="cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90">
+                <LogOutIcon />
+              </Button>
+            </div>
           </div>
 
-          <Separator className="bg-[rgb(85,85,85)]" />
+          <Separator className="bg-muted-foreground/30" />
 
           {/* Question Title */}
           <div className="space-y-2">
-            <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Question
             </h3>
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 leading-relaxed">
+            <p className="text-sm font-medium text-foreground leading-relaxed">
               {pageInfo.question || "No question found (Reload the page)"}
             </p>
           </div>
@@ -130,21 +137,21 @@ function IndexPopup() {
           <div className="flex gap-2 items-center">
             <Button
               onClick={handleNote}
-              className="justify-start gap-3 cursor-pointer h-10 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0"
+              className="justify-start gap-3 cursor-pointer h-10 bg-primary text-primary-foreground hover:bg-primary/90 border-0"
             >
               <FileText className="h-4 w-4" />
               Generate Note
             </Button>
 
-         <a target="_blank" href="https://algo-gray.vercel.app/auth">
-            <Button
-              variant="outline"
-              className="justify-start gap-3 text-white cursor-pointer h-10 border-purple-200 hover:bg-purple-50 hover:border-purple-300 dark:border-purple-700 dark:hover:bg-purple-900/30"
-            >
+            <a target="_blank" href="https://algo-gray.vercel.app/auth">
+              <Button
+                variant="outline"
+                className="justify-start gap-3 cursor-pointer h-10 border-border hover:bg-accent hover:border-accent"
+              >
 
-              <LayoutDashboard className="h-4 w-4 text-purple-600" />
-              Dashboard
-            </Button>
+                <LayoutDashboard className="h-4 w-4 text-accent" />
+                Dashboard
+              </Button>
             </a>
           </div>
         </div>
@@ -157,7 +164,7 @@ function IndexPopup() {
 export function Loader() {
   return (
     <div className="flex w-full items-center justify-center">
-      <div className="animate-spin rounded-full h-6 w-6 border-4 border-purple-500 border-t-transparent"></div>
+      <div className="animate-spin rounded-full h-6 w-6 border-4 border-primary border-t-transparent"></div>
     </div>
   );
 }

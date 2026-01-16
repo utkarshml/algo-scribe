@@ -29,18 +29,18 @@ export const CodeDisplay: React.FC<CodeDisplayProps> = ({ code, language }) => {
 
   return (
     <Card className="p-0 gap-0 overflow-hidden">
-      <div className="bg-[rgb(46,47,47)] px-4 py-2 border-b flex items-center justify-between">
+      <div className="bg-muted px-4 py-2 border-b border-border flex items-center justify-between">
         <span className={`px-2 py-1 rounded text-xs font-medium ${getLanguageColor(language)}`}>
           {language.toUpperCase()}
         </span>
-        <button 
-          className="text-xs text-white cursor-pointer hover:text-gray-400 transition-colors"
+        <button
+          className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
           onClick={() => navigator.clipboard.writeText(code)}
         >
           Copy
         </button>
       </div>
-      <div className="p-4 bg-black text-gray-100 overflow-x-auto">
+      <div className="p-4 bg-black text-muted-foreground overflow-x-auto">
         <pre className="text-sm leading-relaxed">
           <code className="font-mono whitespace-pre-wrap break-words">
             {code}

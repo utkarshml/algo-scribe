@@ -1,6 +1,6 @@
 import { MessageBubble } from '@/components/MessageBubble';
 import { Card } from '@/components/ui/card';
-import { Bot, Lightbulb } from 'lucide-react';
+import { Bot, Lightbulb, History } from 'lucide-react';
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { Message } from '@/types/custom';
 import { ChatInput } from '@/components/ChatInterface';
@@ -9,7 +9,10 @@ import { User } from '@supabase/supabase-js';
 import { Loader } from '../popup/App';
 import { useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
-
+import appLogo from "../../assets/algo_logo.png"
+import { Button } from '@/components/ui/button';
+import { Toaster } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 const sampleResponse = [
   {
     "output": {
@@ -70,20 +73,53 @@ function App() {
   const [isChat, setIsChat] = useState(true)
   const [isTyping, setIsTyping] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isQuestionAvailable , setIsQuestionAvailable] = useState(false);
+  const [isQuestionAvailable, setIsQuestionAvailable] = useState(false);
   const [user, setUser] = useState<User | null>(null)
   const chatEndRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     browser.runtime.sendMessage({ type: 'SET_PAGE_INFO' }, (resp) => {
+      console.log("Sidepanel received data:", resp);
+
+      if (!resp || !resp.data) {
+        console.warn("No data received from background");
+        setIsChat(true);
+        return;
+      }
+
       if (resp.data.action === 'gen_note') {
+        console.log("Processing gen_note action with data:", resp.data);
         setQuestionRequest(resp.data);
-        setIsQuestionAvailable(false)
+        setIsQuestionAvailable(false);
+
         if (resp.data.code && resp.data.language) {
-          setMessages(pre => [...pre, { id: crypto.randomUUID(), sender: "system", system: { question: resp.data.question, description: resp.data.description, code: resp.data.code, language: resp.data.language, difficulty: resp.data.difficulty }, timestamp: new Date(), isStore: false }])
+          setMessages(pre => [...pre, {
+            id: crypto.randomUUID(),
+            sender: "system",
+            system: {
+              question: resp.data.question,
+              description: resp.data.description,
+              code: resp.data.code,
+              language: resp.data.language,
+              difficulty: resp.data.difficulty
+            },
+            timestamp: new Date(),
+            isStore: false
+          }]);
         } else {
-          setMessages(pre => [...pre, { id: crypto.randomUUID(), sender: "system", system: { question: resp.data.question, description: resp.data.description, difficulty: resp.data.difficulty }, timestamp: new Date(), isStore: false }])
+          setMessages(pre => [...pre, {
+            id: crypto.randomUUID(),
+            sender: "system",
+            system: {
+              question: resp.data.question,
+              description: resp.data.description,
+              difficulty: resp.data.difficulty
+            },
+            timestamp: new Date(),
+            isStore: false
+          }]);
         }
-      }else{
+      } else {
+        console.log("No gen_note action, defaulting to chat mode");
         setIsChat(true);
       }
     });
@@ -92,7 +128,7 @@ function App() {
   useEffect(() => {
     async function fetchSession() {
       try {
-        const { supabaseToken:  session  } = await browser.storage.local.get('supabaseToken');
+        const { supabaseToken: session } = await browser.storage.local.get('supabaseToken');
         if (session) {
           const { error } = await supabase.auth.setSession(session);
           if (!error) {
@@ -111,8 +147,8 @@ function App() {
   }, []);
 
   const scrollToBottom = () => {
-      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    };
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -125,103 +161,103 @@ function App() {
   }
 
   const sendMessageRequest = async (
-  requestBody: any
-): Promise<any> => {
-  try {
-    const response = await fetch("https://algo-scribe-ai-server.vercel.app/solve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
-    });
+    requestBody: any
+  ): Promise<any> => {
+    try {
+      const response = await fetch("https://algo-scribe-ai-server.vercel.app/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      });
 
-    const resp = await response.json();
-    const output = resp?.response;
-    if (output.isChat) {
+      const resp = await response.json();
+      const output = resp?.response;
+      if (output.isChat) {
+        return {
+          id: crypto.randomUUID(),
+          sender: "bot",
+          botMessage: output.return ?? "No response generated",
+          timestamp: new Date(),
+          isChat: true,
+        };
+      } else {
+        return {
+          id: crypto.randomUUID(),
+          sender: "bot",
+          botMessage: output ?? "No response generated",
+          questionResponse: output ?? null,
+          timestamp: new Date(),
+          isChat: false,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching response:", error);
       return {
-        id: crypto.randomUUID(),
+        id: sessionId,
         sender: "bot",
-        botMessage: output.return ?? "No response generated",
+        botMessage: "Error fetching response",
         timestamp: new Date(),
-        isChat : true,
-      };
-    } else {
-      return {
-        id: crypto.randomUUID(),
-        sender: "bot",
-        botMessage: output ?? "No response generated",
-        questionResponse: output ?? null,
-        timestamp: new Date(),
-        isChat : false,
+        isChat: true,
       };
     }
-  } catch (error) {
-    console.error("Error fetching response:", error);
-    return {
-      id: sessionId,
-      sender: "bot",
-      botMessage: "Error fetching response",
-      timestamp: new Date(),
-      isChat : true,
-    };
-  }
-};
-const generateNote = async () =>{
+  };
+  const generateNote = async () => {
     setIsTyping(true);
-    const text : string = "Generate Note";
+    const text: string = "Generate Note";
     setMessages((prev) => [
-    ...prev,
-    {
-      id: crypto.randomUUID(),
-      sender: "user",
-      userMessage: text,
-      timestamp: new Date(),
-      isChat: false,
-    },
-  ]);
-  const botResponse = await sendMessageRequest({
-        id: sessionId,
-        question_name: questionRequest?.question,
-        description: questionRequest?.description,
-        user_code: questionRequest?.code,
-        language: questionRequest?.language,
-        difficulty: questionRequest?.difficulty,
-        message: "Generate Note",
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        sender: "user",
+        userMessage: text,
+        timestamp: new Date(),
         isChat: false,
-      });
-  setMessages((prev) => [...prev, botResponse]);
-  setIsTyping(false);
-};
-const handleSendMessage = useCallback(async () => {
-  if (!inputValue.trim()) return;
-  
-  setIsTyping(true);
-  setInputValue("");
-  setMessages((prev) => [
-    ...prev,
-    {
-      id: crypto.randomUUID(),
-      sender: "user",
-      userMessage: inputValue,
-      timestamp: new Date(),
-      isChat: isChat,
-    },
-  ]);
+      },
+    ]);
+    const botResponse = await sendMessageRequest({
+      id: sessionId,
+      question_name: questionRequest?.question,
+      description: questionRequest?.description,
+      user_code: questionRequest?.code,
+      language: questionRequest?.language,
+      difficulty: questionRequest?.difficulty,
+      message: "Generate Note",
+      isChat: false,
+    });
+    setMessages((prev) => [...prev, botResponse]);
+    setIsTyping(false);
+  };
+  const handleSendMessage = useCallback(async () => {
+    if (!inputValue.trim()) return;
 
-  const requestBody = {
-        id: sessionId,
-        question_name: questionRequest?.question,
-        description: questionRequest?.description,
-        user_code: questionRequest?.code,
-        language: questionRequest?.language,
-        difficulty: questionRequest?.difficulty,
-        message: inputValue,
+    setIsTyping(true);
+    setInputValue("");
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        sender: "user",
+        userMessage: inputValue,
+        timestamp: new Date(),
         isChat: isChat,
-      };
-  const botResponse = await sendMessageRequest(requestBody);
+      },
+    ]);
 
-  setMessages((prev) => [...prev, botResponse]);
-  setIsTyping(false);
-}, [inputValue, sessionId, questionRequest]);
+    const requestBody = {
+      id: sessionId,
+      question_name: questionRequest?.question,
+      description: questionRequest?.description,
+      user_code: questionRequest?.code,
+      language: questionRequest?.language,
+      difficulty: questionRequest?.difficulty,
+      message: inputValue,
+      isChat: isChat,
+    };
+    const botResponse = await sendMessageRequest(requestBody);
+
+    setMessages((prev) => [...prev, botResponse]);
+    setIsTyping(false);
+  }, [inputValue, sessionId, questionRequest]);
 
   const handleKeyPress = useCallback((e: KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -229,6 +265,45 @@ const handleSendMessage = useCallback(async () => {
       handleSendMessage();
     }
   }, [handleSendMessage]);
+
+  const handleSaveChat = async () => {
+    if (!user) {
+      toast.error("Please login to save chat");
+      return;
+    }
+    if (messages.length === 0) {
+      toast.error("No messages to save");
+      return;
+    }
+
+    try {
+      // saving chat session in database
+      const { data, error } = await supabase.from('chats').insert({
+        user_id: user.id,
+        title: "New Chat",
+      }).select("*").single();
+
+      if (error) {
+        console.error("Error creating chat:", error);
+        toast.error("Failed to create chat session");
+        return;
+      }
+
+      // saving chat messages in database
+      const { error: messageError } = await supabase.from('messages').insert(messages.map((message) => ({
+        session_id: data.id,
+        text: JSON.stringify(message),
+        message_type: message.sender === "user" ? "user" : message.sender === "system" ? "system" : message.sender === "bot" ? "bot" : "generated_answers",
+      })));
+      if (messageError) throw messageError;
+      toast.success("Chat saved to history");
+    } catch (error) {
+      console.error("Error saving chat:", error);
+      toast.error("Failed to save chat");
+    }
+  };
+
+
   if (loading) {
     return (
       <div className='flex justify-content items-center w-full h-[100vh]'>
@@ -238,56 +313,66 @@ const handleSendMessage = useCallback(async () => {
   }
   if (!user) {
     return (
-      <div className='flex justify-content bg-[rgb(10,10,10)] items-center w-full h-[100vh]'>
+      <div className='flex justify-content bg-background items-center w-full h-[100vh]'>
         <h2 className='text-xl text-center text-purple-800 w-full font-bold'>Please Login First</h2>
       </div>
     )
   }
   return (
     <div className="flex flex-col h-screen max-w-4xl mx-auto overflow-y-auto 
-       bg-[rgb(10,10,10)] ">
+       bg-background ">
       {/* Header */}
-      <Card className="flex items-start  justify-between p-4 rounded-none border-none  shadow-md bg-[rgb(23,22,22)] ">
-        <div className="flex  items-center gap-3">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-            <Bot className="w-6 h-6 text-white" />
+      <Card className="flex flex-row items-center justify-between p-4 rounded-none border-none bg-card">
+        <div className="flex items-center gap-2">
+          <div>
+            <img src={appLogo} alt="Algo-Scribe Logo" className="w-10 h-10" />
           </div>
-          <div >
-            <h1 className="text-xl text-start font-semibold text-white bg-clip-text">AI Chat Assistant</h1>
-            <p className="text-xs text-start text-white bg-clip-text">Powered by Algo-Scribe</p>
+          <div>
+            <h1 className="text-md text-start font-semibold text-card-foreground bg-clip-text">AI Chat Assistant</h1>
+            <p className="text-xxs text-start text-muted-foreground bg-clip-text">Powered by Algo-Scribe</p>
           </div>
         </div>
+        <Button variant="outline" size="icon" onClick={handleSaveChat} title="Save Chat">
+          <History className="w-5 h-5" />
+        </Button>
       </Card>
 
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        * {messages.map((message) => (
-          <MessageBubble user_id={user.id}  generatedHandler={generateNote} sessionId={sessionId} message={message}
+        {messages.map((message) => (
+          <MessageBubble user_id={user.id} generatedHandler={generateNote} sessionId={sessionId} message={message}
             key={message.id} />
         ))}
 
- 
+
         {isTyping && (
           <div className="flex items-center gap-3 animate-fade-in">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500">
-              <Bot className="w-4 h-4 text-white" />
+            <div className="p-2 rounded-lg bg-accent">
+              <Bot className="w-4 h-4 text-accent-foreground" />
             </div>
-            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-2xl rounded-bl-md">
+            <div className="bg-card border border-border px-4 py-2 rounded-2xl rounded-bl-md">
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.2s" }}></div>
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" style={{ animationDelay: "0.4s" }}></div>
               </div>
             </div>
           </div>
         )}
-     <div ref={chatEndRef} ></div>
+        <div ref={chatEndRef} ></div>
       </div>
       {/* Input Area */}
-      <Card className="p-4 rounded-tl-2xl gap-2 rounded-tr-2xl   border-none   bg-[rgb(23,22,22)] ">
+      <Card className="p-4 gap-2 border-none bg-transparent">
         <div className="options">
-          <Badge variant={"default"} onClick={chatHandler} style={{ opacity: 0.8 }} className={` px-4 py-1 cursor-pointer ${isChat == true ? "bg-blue-600 font-semibold"  : "bg-white/20"} border rounded-full border-[rgb(85,85,85)] hover:bg-blue-400 text-white`}  >
-          <Lightbulb className='font-bold' />  <span >Chat</span>
+          <Badge
+            onClick={chatHandler}
+            className={`px-4 py-1 gap-2 cursor-pointer border border-border transition-colors ${isChat
+              ? "bg-accent text-accent-foreground hover:bg-accent/90 font-semibold"
+              : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+          >
+            <Lightbulb className="w-4 h-4" />
+            <span>Chat</span>
           </Badge>
         </div>
         <ChatInput
@@ -296,10 +381,11 @@ const handleSendMessage = useCallback(async () => {
           handleSendMessage={handleSendMessage}
           handleKeyPress={handleKeyPress}
         />
-        <span className='text-pink-500 font-bo'>For more lines, use shift+enter and for code, use triple backticks</span>
+        <span className='text-accent text-xs'>For more lines, use shift+enter and for code, use triple backticks</span>
       </Card>
 
-      
+
+      <Toaster />
     </div>
   )
 }

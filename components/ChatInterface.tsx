@@ -30,14 +30,14 @@ export const ChatInput = React.memo(({ inputValue, setInputValue, handleSendMess
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder="Type your message..."
-          className="flex-1 chatInput in  focus:outline-none focus:ring-0 border-none text-white  resize-none font-mono text-sm"
+          className="flex-1 chatInput in  focus:outline-none focus:ring-0 border-none text-foreground  resize-none font-mono text-sm"
           rows={1}
         />
         <Button
           onClick={handleSendMessage}
           disabled={!inputValue.trim()}
-          className="hover:scale-105 transition-transform text-white cursor-pointer h-11 bg-gradient-to-r from-purple-500 to-pink-500"
-        > 
+          className="hover:scale-105 transition-transform cursor-pointer h-11 bg-primary text-primary-foreground hover:bg-primary/90"
+        >
           <Send className="w-4 h-4" />
         </Button>
       </div>

@@ -15,7 +15,7 @@ type userProp = {
   rank: 'Beginner' | 'Intermediate' | 'Expert';
   favoriteTopics: string[];
 }
-const UserProfile = ({name , username , totalSolved , easyCompleted , mediumCompleted , hardCompleted , rank , favoriteTopics } : userProp) => {
+const UserProfile = ({ name, username, totalSolved, easyCompleted, mediumCompleted, hardCompleted, rank, favoriteTopics }: userProp) => {
 
   return (
     <div className="mb-8">
@@ -24,12 +24,12 @@ const UserProfile = ({name , username , totalSolved , easyCompleted , mediumComp
           {/* Profile Info */}
           <div className="lg:col-span-1">
             <div className="flex flex-col items-center text-center">
-              <div className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center mb-4">
-                <User className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mb-4">
+                <User className="w-10 h-10 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-bold text-white mb-1">{name}</h1>
-              <p className="text-purple-200 mb-2">{username}</p>
-              <Badge variant="secondary" className="bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-semibold">
+              <h1 className="text-2xl font-bold text-foreground mb-1">{name}</h1>
+              <p className="text-muted-foreground mb-2">{username}</p>
+              <Badge variant="secondary" className="bg-secondary text-secondary-foreground font-semibold">
                 {rank}
               </Badge>
             </div>
@@ -38,19 +38,19 @@ const UserProfile = ({name , username , totalSolved , easyCompleted , mediumComp
           {/* Stats Grid */}
           <div className="lg:col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <Card className="bg-white/5 border-white/10">
+              <Card className="bg-card/50 border-border">
                 <CardContent className="p-4 text-center">
-                  <Target className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{totalSolved}</div>
-                  <div className="text-xs text-purple-200">Total Solved</div>
+                  <Target className="w-6 h-6 text-accent mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-foreground">{totalSolved}</div>
+                  <div className="text-xs text-muted-foreground">Total Solved</div>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/5 border-white/10">
+              <Card className="bg-card/50 border-border">
                 <CardContent className="p-4 text-center">
-                  <Code className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-white">{favoriteTopics.length - 1}</div>
-                  <div className="text-xs text-purple-200">Favorite Topics</div>
+                  <Code className="w-6 h-6 text-primary mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-foreground">{favoriteTopics.length - 1}</div>
+                  <div className="text-xs text-muted-foreground">Favorite Topics</div>
                 </CardContent>
               </Card>
             </div>

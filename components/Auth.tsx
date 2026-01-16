@@ -5,18 +5,18 @@ import { supabase } from '@/entrypoints/background'
 
 
 
- 
+
 function Auth() {
- 
+
   return (
-    <Card className='w-[300px] h-[150px] bg-[#1a1a1a] text-white'>
-     <CardContent className='flex flex-col gap-6 items-center'>
-      <Button className='cursor-pointer border-purple-950' variant={"outline"}>
-        <a target='_blank' href='https://algo-gray.vercel.app/auth'>
-Login
-        </a>
+    <Card className='w-[300px] h-[150px] bg-card text-card-foreground'>
+      <CardContent className='flex flex-col gap-6 items-center'>
+        <Button className='cursor-pointer border-border' variant={"outline"}>
+          <a target='_blank' href='https://algo-gray.vercel.app/auth'>
+            Login
+          </a>
         </Button>
-     </CardContent>
+      </CardContent>
     </Card>
   )
 }
